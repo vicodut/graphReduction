@@ -7,26 +7,27 @@ using namespace std;
 class Graph
 {
 private:
-    void DFSUtils(int i, vector< int > &visited) {
+    int x;
+
+    void DFSUtils(int i, vector< int > &visited, int count, int& maxCount ) {
         visited.push_back(i);
+        count++;
         for(int j : this->graph[i]) {
-            if (find(visited.begin(), visited.end(), this->graph[i][j]) == visited.end()) {
-                DFSUtils(this->graph[i][j], visited);
+            if (find(visited.begin(), visited.end(), j) == visited.end()) {
+                if (count >= maxCount) {
+                    maxCount = count;
+                    this->x = j;
+                }
+                DFSUtils(j, visited, count, maxCount);
             }
         }
     }
 
 public:
-
     vector< vector<int> > graph;
     Graph() = default;
 
     void addNode(int i, int j) {
-        cout << Graph::graph.capacity() << endl;
-        if (Graph::graph.capacity() < (i > j ? i : j) ) {
-            for (int a = Graph::graph.capacity(); a < (i > j ? i : j); a++)
-                Graph::graph.emplace_back();
-        }
         Graph::graph[i].push_back(j);
         Graph::graph[j].push_back(i);
     }
@@ -48,33 +49,37 @@ public:
         }
     }
 
-    void DFS(int startNode) {
-        cout << "Node accessible by : " << startNode << endl;
+    void dfs(int startNode, int& maxCount) {
         vector< int > visited;
-        this->DFSUtils(startNode, visited);
+        int count = 0;
 
-        for (int j : visited) {
-            cout << j << "";
-        }
+        this->DFSUtils(startNode, visited, count, maxCount);
+    }
 
-        cout << endl;
+    int getDiameter() {
+        int maxCount = INT32_MIN;
+
+        this->dfs(0, maxCount);
+        this->dfs(this->x, maxCount);
+
+
+
+        return maxCount;
     }
 };
 
 int main() {
-    cout << "Hello, World !" << endl;
-    vector< vector<int> > tab = {
-            {1, 2},
-            {0, 2, 3},
-            {0, 1, 3},
-            {1, 2}
-    };
+    vector< vector<int> > tab(5);
 
     Graph graph;
     graph.setGraph(tab);
+    graph.addNode(0, 1);
+    graph.addNode(0, 2);
+    graph.addNode(1, 3);
+    graph.addNode(1, 4);
 
     graph.displayGraph();
-    graph.DFS(0);
+    cout << endl << "Diameter : " << graph.getDiameter() << endl;
 
     return 0;
 }
